@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "sqlite:///./ve_advisor.db"
 
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:8000, https://ve-model.vercel.app"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:8000,https://ve-model.vercel.app,https://vercel.com/shreya-s-projects25/ve-model/12m3d1zr1yBUNw44n1fUF3VBFWKS"
 
     @property
     def cors_origins_list(self) -> list[str]:
