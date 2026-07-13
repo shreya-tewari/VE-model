@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
-import StatBlock from "../components/StatBlock";
 import { useAuth } from "../context/AuthContext";
 
 interface Summary {
@@ -42,25 +41,25 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto px-6 py-24 flex flex-col items-center justify-center">
-        <svg className="animate-spin h-8 w-8 text-signal mb-4" fill="none" viewBox="0 0 24 24">
+      <div className="max-w-7xl mx-auto px-6 py-24 flex flex-col items-center justify-center">
+        <svg className="animate-spin h-8 w-8 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
         </svg>
-        <span className="readout text-xs uppercase text-muted tracking-widest">Retrieving engine logs...</span>
+        <span className="text-sm text-slate-600 font-medium">Loading your dashboard...</span>
       </div>
     );
   }
-  
+
   if (error || !summary) {
     return (
       <div className="max-w-md mx-auto px-6 py-24 text-center">
-        <div className="border-2 border-amber bg-amber-light/35 p-6 rounded-xl">
-          <h2 className="font-display text-xl font-bold mb-2 text-ink">Dashboard offline</h2>
-          <p className="text-sm text-muted mb-4">{error || "Unable to parse server diagnostics."}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="readout text-xs uppercase bg-ink text-paper px-4 py-2 hover:bg-signal transition-all"
+        <div className="border-2 border-amber-200 bg-amber-50 p-8 rounded-lg">
+          <h2 className="font-bold text-lg mb-2 text-amber-900">Unable to load dashboard</h2>
+          <p className="text-sm text-amber-800 mb-6">{error || "Unable to parse server diagnostics."}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-amber-900 text-white font-semibold rounded-lg hover:bg-amber-800 transition-colors"
           >
             Retry Connection
           </button>
@@ -69,116 +68,141 @@ export default function Dashboard() {
     );
   }
 
-  // Calculate highest distribution count to normalize bar chart widths
   const maxCount = Math.max(...Object.values(summary.model_distribution), 1);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
+    <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
       {/* Welcome Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-line/60 pb-8 mb-10">
-        <div>
-          <h1 className="font-display text-4xl font-bold text-ink">
-            Hello, {user?.full_name.split(" ")[0]}
-          </h1>
-          <p className="text-muted mt-2 text-sm sm:text-base">
-            System qualified metrics and customer leads at a glance.
-          </p>
-        </div>
-        
-        {summary.open_contact_submissions > 0 && (
-          <div className="inline-flex items-center gap-3 bg-amber-light/40 border border-amber/35 px-4 py-3 rounded-lg text-sm text-ink animate-pulse">
-            <span className="w-2.5 h-2.5 bg-amber rounded-full shrink-0" />
-            <span className="font-semibold">
-              {summary.open_contact_submissions} pending lead{summary.open_contact_submissions > 1 ? "s" : ""}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <StatBlock label="Total Diagnostics" value={String(summary.total_reports)} />
-        <StatBlock label="Client Portal Runs" value={String(summary.client_flow_reports)} />
-        <StatBlock label="BDM Scored Runs" value={String(summary.bdm_flow_reports)} />
-        <StatBlock label="Avg. Match Index" value={`${Math.round(summary.average_confidence * 100)}%`} />
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-8">
-        {/* Model Distribution visual panel */}
-        <div className="md:col-span-1 glass-card p-6 rounded-xl border border-line/60 flex flex-col justify-between">
+      <div className="mb-12 pb-8 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h2 className="readout text-xs uppercase text-muted tracking-widest mb-6 font-semibold">
-              Outcomes Mapped
-            </h2>
-            <div className="grid gap-5">
-              {Object.entries(summary.model_distribution).length === 0 ? (
-                <p className="text-muted text-xs font-mono py-4">No reports recorded yet.</p>
-              ) : (
-                Object.entries(summary.model_distribution).map(([model, count]) => {
-                  const percentage = (count / maxCount) * 100;
-                  return (
-                    <div key={model} className="group">
-                      <div className="flex items-center justify-between text-xs font-semibold mb-1 text-ink">
-                        <span>{model}</span>
-                        <span className="readout font-mono font-bold text-signal">{count}</span>
-                      </div>
-                      <div className="w-full bg-line/60 h-2 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-signal h-full rounded-full transition-all duration-500 group-hover:bg-signal-dark" 
-                          style={{ width: `${percentage}%` }} 
-                        />
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+            <h1 className="text-4xl font-bold text-slate-900">
+              Welcome, {user?.full_name.split(" ")[0]}
+            </h1>
+            <p className="text-slate-600 mt-2">Your diagnostic reports and engine metrics at a glance.</p>
           </div>
+
+          {summary.open_contact_submissions > 0 && (
+            <div className="inline-flex items-center gap-3 bg-amber-50 border border-amber-200 px-5 py-3 rounded-lg text-sm text-amber-900 font-semibold">
+              <span className="w-2.5 h-2.5 bg-amber-600 rounded-full animate-pulse" />
+              {summary.open_contact_submissions} pending lead{summary.open_contact_submissions > 1 ? "s" : ""}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Key Metrics Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
+          <div className="text-xs font-semibold text-slate-600 uppercase tracking-widest mb-3">Total Diagnostics</div>
+          <div className="text-4xl font-bold text-slate-900">{summary.total_reports}</div>
+        </div>
+        <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+          <div className="text-xs font-semibold text-blue-700 uppercase tracking-widest mb-3">Client Portal Runs</div>
+          <div className="text-4xl font-bold text-blue-900">{summary.client_flow_reports}</div>
+        </div>
+        <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
+          <div className="text-xs font-semibold text-slate-600 uppercase tracking-widest mb-3">BDM Qualifications</div>
+          <div className="text-4xl font-bold text-slate-900">{summary.bdm_flow_reports}</div>
+        </div>
+        <div className="bg-green-50 rounded-lg p-6 border border-green-200">
+          <div className="text-xs font-semibold text-green-700 uppercase tracking-widest mb-3">Avg. Confidence</div>
+          <div className="text-4xl font-bold text-green-900">{Math.round(summary.average_confidence * 100)}%</div>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Model Distribution */}
+        <div className="lg:col-span-1 bg-white rounded-lg border border-slate-200 p-8">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">
+            Outcomes Mapped
+          </h2>
+          {Object.entries(summary.model_distribution).length === 0 ? (
+            <div className="py-8 text-center">
+              <p className="text-sm text-slate-600">No reports recorded yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {Object.entries(summary.model_distribution).map(([model, count]) => {
+                const percentage = (count / maxCount) * 100;
+                return (
+                  <div key={model}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-semibold text-slate-900 capitalize">
+                        {model.replace(/_/g, " ")}
+                      </span>
+                      <span className="text-xs font-bold text-blue-600">{count}</span>
+                    </div>
+                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Recent Reports Listing table */}
-        <div className="md:col-span-2 glass-card p-6 rounded-xl border border-line/60">
-          <h2 className="readout text-xs uppercase text-muted tracking-widest mb-6 font-semibold">
+        {/* Recent Reports */}
+        <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 p-8">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">
             Recent Diagnostics
           </h2>
-          
+
           {summary.recent_reports.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-line/60 rounded-xl bg-paper/20">
-              <p className="text-muted text-sm mb-4">No qualification records exist yet.</p>
-              <button 
+            <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-lg">
+              <p className="text-slate-600 mb-4">No diagnostics yet. Get started with your first assessment.</p>
+              <button
                 onClick={() => navigate("/bdm-qualification")}
-                className="readout text-xs uppercase bg-ink text-paper px-4 py-2 hover:bg-signal transition-all"
+                className="px-6 py-2.5 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors inline-flex items-center gap-2"
               >
-                Run First Qualifier
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Run First Diagnostic
               </button>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full">
                 <thead>
-                  <tr className="border-b border-line text-xs font-mono text-muted uppercase">
-                    <th className="pb-3 font-semibold">Prospect</th>
-                    <th className="pb-3 font-semibold">Target Model</th>
-                    <th className="pb-3 font-semibold text-right">Confidence</th>
+                  <tr className="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-widest">
+                    <th className="text-left pb-4 font-semibold">Prospect</th>
+                    <th className="text-left pb-4 font-semibold">Model</th>
+                    <th className="text-right pb-4 font-semibold">Confidence</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-line/40">
+                <tbody className="divide-y divide-slate-200">
                   {summary.recent_reports.map((r) => (
-                    <tr 
-                      key={r.id} 
+                    <tr
+                      key={r.id}
                       onClick={() => openReport(r.id)}
-                      className="group cursor-pointer hover:bg-paper/40 transition-colors"
+                      className="group cursor-pointer hover:bg-slate-50 transition-colors h-16"
                     >
-                      <td className="py-4 font-semibold text-ink group-hover:text-signal transition-colors text-sm">
+                      <td className="py-4 text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
                         {r.prospect_name || "Unnamed Prospect"}
                       </td>
-                      <td className="py-4 text-xs font-mono text-muted uppercase">
-                        {r.recommended_model}
+                      <td className="py-4">
+                        <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                          {r.recommended_model}
+                        </span>
                       </td>
                       <td className="py-4 text-right">
-                        <span className="readout text-xs font-bold text-ink">
-                          {Math.round(r.confidence * 100)}%
-                        </span>
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="h-2 w-16 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className="bg-blue-600 h-full"
+                              style={{ width: `${Math.round(r.confidence * 100)}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-bold text-slate-900 w-12 text-right">
+                            {Math.round(r.confidence * 100)}%
+                          </span>
+                        </div>
                       </td>
                     </tr>
                   ))}

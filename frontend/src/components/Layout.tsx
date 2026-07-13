@@ -9,81 +9,67 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const isLinkActive = (path: string) => location.pathname === path;
 
+  const navLinks = [
+    { path: "/client-walkthrough", label: "Client Walkthrough" },
+    { path: "/bdm-qualification", label: "BDM Qualification" },
+    { path: "/contact", label: "Contact" },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col relative z-10 selection:bg-signal/20">
-      {/* Sticky Header with Glassmorphism */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-paper/85 border-b border-line/60 transition-all duration-300">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <span className="bg-ink text-paper font-display text-lg font-bold px-2 py-0.5 rounded tracking-tighter transition-transform group-hover:scale-105">
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 bg-slate-900 rounded-md flex items-center justify-center text-white font-bold text-sm group-hover:bg-blue-600 transition-colors">
               VE
-            </span>
-            <span className="readout text-xs font-semibold tracking-widest text-ink group-hover:text-signal transition-colors">
-              MODEL ADVISOR
-            </span>
+            </div>
+            <span className="text-sm font-bold text-slate-900 hidden sm:inline">Model Advisor</span>
           </Link>
-          
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <Link 
-              to="/client-walkthrough" 
-              className={`relative py-1 transition-colors ${
-                isLinkActive("/client-walkthrough") ? "text-signal" : "text-muted hover:text-ink"
-              }`}
-            >
-              Client walkthrough
-              {isLinkActive("/client-walkthrough") && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-signal rounded" />
-              )}
-            </Link>
-            <Link 
-              to="/bdm-qualification" 
-              className={`relative py-1 transition-colors ${
-                isLinkActive("/bdm-qualification") ? "text-signal" : "text-muted hover:text-ink"
-              }`}
-            >
-              BDM qualification
-              {isLinkActive("/bdm-qualification") && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-signal rounded" />
-              )}
-            </Link>
-            <Link 
-              to="/contact" 
-              className={`relative py-1 transition-colors ${
-                isLinkActive("/contact") ? "text-signal" : "text-muted hover:text-ink"
-              }`}
-            >
-              Contact
-              {isLinkActive("/contact") && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-signal rounded" />
-              )}
-            </Link>
+
+          {/* Navigation - Desktop */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map(({ path, label }) => (
+              <Link
+                key={path}
+                to={path}
+                className={`text-sm font-medium transition-colors ${
+                  isLinkActive(path)
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
             {user && (
-              <Link 
-                to="/dashboard" 
-                className={`relative py-1 transition-colors ${
-                  isLinkActive("/dashboard") ? "text-signal" : "text-muted hover:text-ink"
+              <Link
+                to="/dashboard"
+                className={`text-sm font-medium transition-colors ${
+                  isLinkActive("/dashboard")
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Dashboard
-                {isLinkActive("/dashboard") && (
-                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-signal rounded" />
-                )}
               </Link>
             )}
           </nav>
 
+          {/* Auth Buttons */}
           <div className="flex items-center gap-4">
             {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-muted font-mono hidden sm:inline">
-                  [{user.role.toUpperCase()}]
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-slate-600 hidden sm:inline">
+                  {user.full_name.split(" ")[0]}
                 </span>
                 <button
                   onClick={() => {
                     logout();
                     navigate("/");
                   }}
-                  className="readout text-[11px] font-semibold tracking-wider uppercase border-2 border-ink px-4 py-1.5 hover:bg-ink hover:text-paper transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Log out
                 </button>
@@ -91,7 +77,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ) : (
               <Link
                 to="/login"
-                className="readout text-[11px] font-semibold tracking-wider uppercase bg-ink text-paper border-2 border-ink px-4 py-1.5 hover:bg-transparent hover:text-ink transition-all duration-200"
+                className="px-4 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
               >
                 Log in
               </Link>
@@ -100,23 +86,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative z-10 animate-fade-in">
+      {/* Main Content */}
+      <main className="flex-1">
         {children}
       </main>
 
-      {/* Premium Footer */}
-      <footer className="border-t border-line/60 bg-paper/60 backdrop-blur-sm mt-auto relative z-10">
-        <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="readout text-[10px] text-muted text-center md:text-left max-w-xl leading-relaxed">
-            VE Mobile App Engagement Diagnostic · An indicative scoring engine for strategic qualification. 
-            All generated options represent guidelines; final models require BDM scoping.
-          </div>
-          <div className="flex items-center gap-4 text-xs font-mono text-muted">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-signal rounded-full animate-pulse" />
-              Engine V4.2 Online
-            </span>
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-slate-50 mt-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-xs text-slate-600 text-center md:text-left max-w-md">
+              VE Mobile App Engagement Diagnostic · Indicative scoring engine for strategic qualification. 
+              All recommendations require BDM validation before commitment.
+            </p>
+            <div className="flex items-center gap-3 text-xs text-slate-600">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+                Engine V4.2 Online
+              </span>
+            </div>
           </div>
         </div>
       </footer>

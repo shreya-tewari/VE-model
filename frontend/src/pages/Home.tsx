@@ -1,188 +1,221 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import OutcomeModal from "../components/OutcomeModal";
 
-const outcomeDetails = [
+interface Outcome {
+  id: string;
+  title: string;
+  short: string;
+  description: string;
+  details: {
+    whatItIs: string;
+    bestFor: string;
+    clientOwns: string[];
+    vendorOwns: string[];
+    timeline: string;
+    cost: string;
+  };
+}
+
+const outcomes: Outcome[] = [
   {
+    id: "staff_augmentation",
     title: "Staff Augmentation",
-    desc: "Plugging specialized developers directly into your existing engineering processes and management structures.",
-    icon: (
-      <svg className="w-5 h-5 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-    )
+    short: "Specialized developers embedded in your team",
+    description: "Plug skilled engineers directly into your existing processes and management structures.",
+    details: {
+      whatItIs: "Your company retains full control and decision-making authority. We provide dedicated, skilled engineers who work as extensions of your internal team, following your architecture, roadmap, and processes.",
+      bestFor: "Teams with established processes and a clear technical direction who need additional hands for capacity.",
+      clientOwns: ["Product strategy and roadmap", "Architecture decisions", "Day-to-day delivery management", "Final QA sign-off"],
+      vendorOwns: ["Providing skilled engineers", "Code quality on assigned work", "Reporting progress and hours"],
+      timeline: "Flexible, ongoing relationship (months to years)",
+      cost: "Fixed per-engineer cost, billed by hours or seats",
+    },
   },
   {
+    id: "agency",
     title: "Agency Model",
-    desc: "End-to-end design, development, and delivery. Ideal for when you want high polish without managing the daily build.",
-    icon: (
-      <svg className="w-5 h-5 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    )
+    short: "End-to-end delivery with strategic partnership",
+    description: "We own design, development, and delivery. Partner with us for polish without managing the daily build.",
+    details: {
+      whatItIs: "A true partnership where we take responsibility for the full delivery lifecycle. You focus on business goals; we handle architecture, technology choices, project management, and execution.",
+      bestFor: "Companies that want a trusted partner to evolve their product over time, who prefer outcome-based delivery over task management.",
+      clientOwns: ["Business goals and priorities", "Budget approval and oversight", "Final acceptance and sign-off"],
+      vendorOwns: ["End-to-end delivery", "Architecture and tech stack decisions", "Project management and timelines", "QA, testing, and release management"],
+      timeline: "Ongoing relationship with evolving scope (1+ years)",
+      cost: "Monthly retainer or milestone-based pricing",
+    },
   },
   {
+    id: "project_outsourcing",
     title: "Project Outsourcing",
-    desc: "Fixed-scope, milestone-driven delivery of a complete product or modular feature set built to explicit specifications.",
-    icon: (
-      <svg className="w-5 h-5 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-      </svg>
-    )
+    short: "Fixed-scope, milestone-driven delivery",
+    description: "We deliver a complete product or feature set to explicit specifications within a defined scope and timeline.",
+    details: {
+      whatItIs: "You lock down requirements upfront; we commit to delivering it on time and within budget. Clear scope boundaries, defined milestones, and fixed deliverables.",
+      bestFor: "Well-defined projects with clear scope, fixed budgets, and discrete deliverable sets. Ideal when you know exactly what you need built.",
+      clientOwns: ["Detailed, signed-off requirements", "Timely feedback in review rounds", "Milestone payments"],
+      vendorOwns: ["Fixed-scope delivery and quality", "Timeline and budget adherence", "Documentation and handover"],
+      timeline: "Fixed: typically 3–6 months per phase",
+      cost: "Fixed project fee or per-milestone pricing",
+    },
   },
   {
+    id: "process_outsourcing",
     title: "Process Outsourcing",
-    desc: "Outsourcing a recurring business function (like QA testing, DevOps maintenance, or customer support operations).",
-    icon: (
-      <svg className="w-5 h-5 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2" />
-      </svg>
-    )
+    short: "Ongoing operation of recurring business functions",
+    description: "Outsource operational work like QA testing, DevOps maintenance, or customer support operations on an ongoing basis.",
+    details: {
+      whatItIs: "We take over a defined business process and run it for you, meeting agreed SLAs and KPIs. Ideal for functions that are repetitive and require consistent execution.",
+      bestFor: "Teams that have mature processes but lack internal capacity or specialist expertise to run them efficiently at scale.",
+      clientOwns: ["Defining the process and SLA targets", "Escalation ownership for exceptions"],
+      vendorOwns: ["Day-to-day operation and staffing", "Meeting SLA targets", "Regular reporting and metrics"],
+      timeline: "Ongoing (months to years), with review cycles",
+      cost: "Monthly retainer based on volume or effort",
+    },
   },
   {
+    id: "discovery",
     title: "Discovery Phase",
-    desc: "A brief, structured consulting sprint to define the solution, architecture, interactive prototypes, and roadmap.",
-    icon: (
-      <svg className="w-5 h-5 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    )
-  }
+    short: "Structured consulting to define the solution",
+    description: "A brief, intensive sprint to align on solution, architecture, prototypes, and a detailed roadmap before commitment.",
+    details: {
+      whatItIs: "When scope is unclear, we work with you in a time-boxed engagement to define the problem, validate assumptions, explore solutions, and produce a detailed estimate and roadmap.",
+      bestFor: "Early-stage ideas, complex problems, or when you're unsure which engagement model fits. De-risks larger commitments.",
+      clientOwns: ["Domain knowledge and stakeholder participation", "Availability for workshops and feedback"],
+      vendorOwns: ["Facilitating discovery and workshops", "Producing scoped backlog and effort estimate", "Recommending the optimal engagement model"],
+      timeline: "2–4 weeks, structured",
+      cost: "Fixed engagement fee or daily rate",
+    },
+  },
 ];
 
 export default function Home() {
+  const [selectedOutcome, setSelectedOutcome] = useState<Outcome | null>(null);
+
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
-      {/* Hero Badge & Header */}
-      <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-signal/20 bg-signal-light/40 text-signal text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse">
-          <span className="w-1.5 h-1.5 rounded-full bg-signal" />
-          Enterprise Diagnostic Engine
-        </div>
-        <h1 className="font-display text-4xl sm:text-6xl text-ink leading-tight tracking-tight">
-          Find the right mobile app development model.
-        </h1>
-        <p className="mt-6 text-base sm:text-lg text-muted max-w-2xl leading-relaxed">
-          Answer a few strategic questions and instantly map your mobile project to the ideal engagement structure: Staff Augmentation, Agency, Project Outsourcing, Process Outsourcing, or Discovery.
-        </p>
-
-        {/* Feature Highlights */}
-        <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-2 text-xs uppercase tracking-wider text-muted/80 font-mono">
-          <span className="flex items-center gap-1.5">
-            <svg className="w-4 h-4 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            No black-box scoring
-          </span>
-          <span>·</span>
-          <span className="flex items-center gap-1.5">
-            <svg className="w-4 h-4 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            Saved to Dashboard
-          </span>
-          <span>·</span>
-          <span className="flex items-center gap-1.5">
-            <svg className="w-4 h-4 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            Export-ready Brief
-          </span>
-        </div>
-      </div>
-
-      {/* Diagnostic Entry Points Grid */}
-      <div className="grid md:grid-cols-2 gap-8 mb-24">
-        {/* Client Walkthrough */}
-        <div className="glass-card interactive-card p-8 sm:p-10 rounded-xl flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-signal/5 rounded-bl-full pointer-events-none transition-all duration-300 group-hover:scale-110" />
-          
-          <div>
-            <div className="readout text-xs uppercase text-signal font-semibold mb-4 tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-signal" />
-              Client-Facing Flow
-            </div>
-            <h2 className="font-display text-3xl text-ink mb-4 font-semibold">
-              Client Walkthrough
-            </h2>
-            <p className="text-muted leading-relaxed text-sm sm:text-base">
-              A clear, plain-language path. A short guided walkthrough that points to the engagement model that fits your operational goals—perfect for client self-service or live qualification calls.
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100">
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20 md:py-32">
+        <div className="space-y-6 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 bg-white text-slate-600 text-xs font-semibold uppercase tracking-wide">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+            Enterprise Diagnostic Engine
           </div>
+          
+          <h1 className="font-display text-5xl md:text-6xl font-bold text-slate-900 leading-tight tracking-tight">
+            Find your ideal engagement model.
+          </h1>
+          
+          <p className="text-xl text-slate-600 leading-relaxed max-w-2xl">
+            Answer a few strategic questions and instantly discover which of five operational frameworks aligns with your mobile project's scope, team, and goals.
+          </p>
 
-          <div className="mt-8 pt-6 border-t border-line/40">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Link
               to="/client-walkthrough"
-              className="inline-flex items-center gap-2 readout text-xs uppercase font-bold bg-ink text-paper px-6 py-3.5 hover:bg-signal transition-all duration-300 shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              Start client walkthrough
+              Client Walkthrough
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+            <Link
+              to="/bdm-qualification"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 border-2 border-slate-900 text-slate-900 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-200"
+            >
+              BDM Qualification
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
           </div>
         </div>
+      </section>
 
-        {/* BDM Qualification */}
-        <div className="glass-card interactive-card p-8 sm:p-10 rounded-xl flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-amber/5 rounded-bl-full pointer-events-none transition-all duration-300 group-hover:scale-110" />
-
-          <div>
-            <div className="readout text-xs uppercase text-amber font-semibold mb-4 tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber" />
-              BDM Qualifier
-            </div>
-            <h2 className="font-display text-3xl text-ink mb-4 font-semibold">
-              BDM Qualification
+      {/* Outcomes Grid Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="space-y-12">
+          {/* Section Header */}
+          <div className="space-y-3">
+            <p className="text-sm font-semibold text-slate-600 uppercase tracking-widest">
+              Five Engagement Models
+            </p>
+            <h2 className="text-4xl font-bold text-slate-900">
+              Which model fits your situation?
             </h2>
-            <p className="text-muted leading-relaxed text-sm sm:text-base">
-              Deep-dive technical assessment. Evaluates platforms, complexity, integrations, compliance parameters, and modules to generate detailed effort estimates, red flags, and handover briefs.
+            <p className="text-lg text-slate-600 max-w-2xl">
+              Click any card to explore detailed responsibilities, timelines, and cost structures.
             </p>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-line/40">
-            <Link
-              to="/bdm-qualification"
-              className="inline-flex items-center gap-2 readout text-xs uppercase font-bold bg-ink text-paper px-6 py-3.5 hover:bg-amber transition-all duration-300 shadow-sm"
-            >
-              Start BDM qualification
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          {/* Outcomes Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {outcomes.map((outcome) => (
+              <button
+                key={outcome.id}
+                onClick={() => setSelectedOutcome(outcome)}
+                className="group text-left p-6 rounded-lg border border-slate-200 bg-white hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer"
+              >
+                <div className="space-y-3">
+                  <h3 className="font-bold text-lg text-slate-900 group-hover:text-blue-600 transition-colors">
+                    {outcome.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {outcome.short}
+                  </p>
+                  <div className="flex items-center gap-2 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pt-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide">Learn more</span>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20 border-t border-slate-200">
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="space-y-2">
+            <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-            </Link>
+              Transparent Scoring
+            </h3>
+            <p className="text-sm text-slate-600">No black-box algorithms—every recommendation is explainable and grounded in your specific project.</p>
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Saved Dashboard
+            </h3>
+            <p className="text-sm text-slate-600">All diagnostics saved to your dashboard for easy comparison and team review.</p>
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Export-Ready Reports
+            </h3>
+            <p className="text-sm text-slate-600">Download polished reports with effort estimates, red flags, and responsibility breakdowns.</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Five Outcomes Explanation Section */}
-      <div className="border-t border-line/60 pt-16">
-        <div className="flex flex-col md:flex-row items-baseline justify-between mb-8 gap-2">
-          <div className="readout text-xs uppercase font-semibold text-muted tracking-widest">
-            Mapped Outcomes
-          </div>
-          <div className="text-sm text-muted">
-            Our engine classifies matches across 5 distinct operational frameworks.
-          </div>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
-          {outcomeDetails.map((outcome) => (
-            <div 
-              key={outcome.title} 
-              className="glass-card p-6 rounded-lg hover:border-signal/40 transition-all duration-300 group"
-            >
-              <div className="mb-4 p-2 bg-paper border border-line/60 rounded-md w-fit group-hover:bg-signal-light/40 group-hover:border-signal/20 transition-colors">
-                {outcome.icon}
-              </div>
-              <h3 className="font-display font-bold text-base text-ink mb-2">
-                {outcome.title}
-              </h3>
-              <p className="text-xs text-muted leading-relaxed">
-                {outcome.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Modal */}
+      {selectedOutcome && (
+        <OutcomeModal outcome={selectedOutcome} onClose={() => setSelectedOutcome(null)} />
+      )}
     </div>
   );
 }
