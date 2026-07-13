@@ -1,25 +1,40 @@
 """
 Database engine + session factory.
-Uses SQLite by default so the whole backend runs with zero external
-services and no docker - just `uvicorn app.main:app`.
+
+Supports:
+- SQLite (local development)
+- Neon PostgreSQL (production)
 """
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from app.config import settings
 
-connect_args = {}
+# SQLite needs check_same_thread=False
 if settings.DATABASE_URL.startswith("sqlite"):
-    # required for SQLite when used from multiple threads (FastAPI's default)
-    connect_args = {"check_same_thread": False}
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},
+    )
 
-engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
+# PostgreSQL / Neon
+else:
+    engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,
+        pool_recycle=300,
+    )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
 
 
 def get_db() -> Session:
-    """FastAPI dependency that yields a DB session and always closes it."""
+    """FastAPI dependency that yields a database session."""
     db = SessionLocal()
     try:
         yield db
